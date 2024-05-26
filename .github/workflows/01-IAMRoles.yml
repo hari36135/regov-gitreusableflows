@@ -4,8 +4,8 @@ on:
 
 jobs:
   Plan_Dev:
-    if: github.ref == 'refs/heads/develop'
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@develop
+    if: github.ref == 'refs/heads/main'
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
     with:
       path: IAMRoles
       tf_vars_file: dev.tfvars
@@ -15,7 +15,7 @@ jobs:
 
   Deploy_Dev:
     needs: Plan_Dev
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@develop
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
       path: IAMRoles
       tf_vars_file: dev.tfvars
@@ -25,8 +25,8 @@ jobs:
 
   Plan_Uat:
     needs: Deploy_Dev
-    if: github.ref == 'refs/heads/develop'
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@develop
+    if: github.ref == 'refs/heads/main'
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
