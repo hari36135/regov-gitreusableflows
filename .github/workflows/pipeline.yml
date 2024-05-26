@@ -3,7 +3,26 @@ on:
   workflow_dispatch:
 
 jobs:
+
+  Quality-Check:
+    name: QA
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
+        with:
+          projectBaseDir: .
+          args: >
+            # -Dsonar.organization=my-org
+            -Dsonar.projectKey="terraform"
+        env:
+          SONAR_TOKEN: sqp_85de4c61a2dc7f224fc362f9ac24e52370d8b287
+          SONAR_HOST_URL: https://sonarqube.theonemoment.net/  
   Dev:
+    needs: Dev
     if: github.ref == 'refs/heads/main'
     uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
@@ -35,20 +54,3 @@ jobs:
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    permissions: read-all
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
-        with:
-          projectBaseDir: .
-          args: >
-            # -Dsonar.organization=my-org
-            -Dsonar.projectKey="terraform"
-        env:
-          SONAR_TOKEN: sqp_85de4c61a2dc7f224fc362f9ac24e52370d8b287
-          SONAR_HOST_URL: https://sonarqube.theonemoment.net/     
