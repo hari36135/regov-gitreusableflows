@@ -48,7 +48,7 @@ jobs:
           projectBaseDir: .
           args: >
             # -Dsonar.organization=my-org
-            -Dsonar.projectKey=terraform
+            -Dsonar.projectKey="terraform"
         env:
           SONAR_TOKEN: sqp_85de4c61a2dc7f224fc362f9ac24e52370d8b287
           SONAR_HOST_URL: https://sonarqube.theonemoment.net/     
