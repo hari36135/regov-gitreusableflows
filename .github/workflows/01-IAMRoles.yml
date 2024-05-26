@@ -35,3 +35,21 @@ jobs:
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: sqp_85de4c61a2dc7f224fc362f9ac24e52370d8b287
+          SONAR_HOST_URL: https://sonarqube.theonemoment.net
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
