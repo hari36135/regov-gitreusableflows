@@ -16,7 +16,7 @@ jobs:
   UAT:
     needs: Dev
     if: github.ref == 'refs/heads/main'
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
@@ -27,7 +27,7 @@ jobs:
   Prod:
     needs: UAT
     if: github.ref == 'refs/heads/main'
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
       path: IAMRoles
       tf_vars_file: prod.tfvars
