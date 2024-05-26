@@ -24,12 +24,12 @@ jobs:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
   Plan_Uat:
-    if: github.ref == 'refs/heads/main'
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+    if: github.ref == 'refs/heads/develop'
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@develop
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
-      gh_environment: dev
+      gh_environment: uat
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
