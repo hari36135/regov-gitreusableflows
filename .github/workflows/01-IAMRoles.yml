@@ -48,7 +48,7 @@ jobs:
 
   Plan_Uat:
     if: github.ref == 'refs/heads/main'
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+    uses: RekhuGopal/gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
@@ -81,7 +81,7 @@ jobs:
   Deploy_Uat:
     if: github.ref == 'refs/heads/main'
     needs: Manual_Approval_Uat
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_apply.yml@main
+    uses: RekhuGopal/gitreusableflows/.github/workflows/aws_tf_appy.yml@develop
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
