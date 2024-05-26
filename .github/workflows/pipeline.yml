@@ -22,7 +22,7 @@ jobs:
           SONAR_TOKEN: sqp_85de4c61a2dc7f224fc362f9ac24e52370d8b287
           SONAR_HOST_URL: https://sonarqube.theonemoment.net/  
   Dev:
-    needs: Dev
+    needs: QA
     if: github.ref == 'refs/heads/main'
     uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
