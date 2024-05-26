@@ -13,16 +13,6 @@ jobs:
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-  # Deploy_Dev:
-  #   needs: Plan_Dev
-  #   uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
-  #   with:
-  #     path: IAMRoles
-  #     tf_vars_file: dev.tfvars
-  #     gh_environment: dev
-  #   secrets:
-  #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
   UAT:
     needs: Dev
     if: github.ref == 'refs/heads/main'
@@ -34,12 +24,14 @@ jobs:
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-  Deploy_Uat:
+  Prod:
     needs: UAT
-    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
+    if: github.ref == 'refs/heads/main'
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
     with:
       path: IAMRoles
-      tf_vars_file: uat.tfvars
-      gh_environment: uat
+      tf_vars_file: prod.tfvars
+      gh_environment: prod
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
