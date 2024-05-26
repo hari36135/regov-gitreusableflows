@@ -5,69 +5,87 @@ on:
 jobs:
   Plan_Dev:
     if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+    with:
+      path: IAMRoles
+      tf_vars_file: dev.tfvars
+      gh_environment: dev
+    secrets:
+      cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Plan Dev
-        uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+  Manual_Approval_Dev:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    needs: Plan_Dev
+    steps:
+      - name: Manual Approval - Dev
+        uses: actions/github-script@v5
         with:
-          path: IAMRoles
-          tf_vars_file: dev.tfvars
-          gh_environment: dev
-        secrets:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          script: |
+            const { data: checks } = await github.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: github.sha
+            });
+            const check = checks.check_runs.find(check => check.name === 'Plan Dev');
+            if (check.conclusion === 'success') {
+              console.log('Dev plan succeeded. You can proceed with deployment.');
+            } else {
+              console.log('Dev plan failed. Deployment halted.');
+              process.exit(1);
+            }
 
   Deploy_Dev:
-    needs: Plan_Dev
-    runs-on: ubuntu-latest
-    if: needs.Plan_Dev.result == 'success'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Deploy Dev
-        uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_apply.yml@main
-        with:
-          path: IAMRoles
-          tf_vars_file: dev.tfvars
-          gh_environment: dev
-        secrets:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+    needs: Manual_Approval_Dev
+    if: needs.Manual_Approval_Dev.result == 'success'
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_apply.yml@main
+    with:
+      path: IAMRoles
+      tf_vars_file: dev.tfvars
+      gh_environment: dev
+    secrets:
+      cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
   Plan_Uat:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: Deploy_Dev
-    if: needs.Deploy_Dev.result == 'success'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
+    with:
+      path: IAMRoles
+      tf_vars_file: uat.tfvars
+      gh_environment: uat
+    secrets:
+      cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Plan UAT
-        uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
-        with:
-          path: IAMRoles
-          tf_vars_file: uat.tfvars
-          gh_environment: uat
-        secrets:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-  Deploy_Uat:
+  Manual_Approval_Uat:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: Plan_Uat
-    if: needs.Plan_Uat.result == 'success'
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Deploy UAT
-        uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_apply.yml@main
+      - name: Manual Approval - UAT
+        uses: actions/github-script@v5
         with:
-          path: IAMRoles
-          tf_vars_file: uat.tfvars
-          gh_environment: uat
-        secrets:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          script: |
+            const { data: checks } = await github.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: github.sha
+            });
+            const check = checks.check_runs.find(check => check.name === 'Plan UAT');
+            if (check.conclusion === 'success') {
+              console.log('UAT plan succeeded. You can proceed with deployment.');
+            } else {
+              console.log('UAT plan failed. Deployment halted.');
+              process.exit(1);
+            }
+
+  Deploy_Uat:
+    if: github.ref == 'refs/heads/main'
+    needs: Manual_Approval_Uat
+    if: needs.Manual_Approval_Uat.result == 'success'
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_apply.yml@main
+    with:
+      path: IAMRoles
+      tf_vars_file: uat.tfvars
+      gh_environment: uat
+    secrets:
+      cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
