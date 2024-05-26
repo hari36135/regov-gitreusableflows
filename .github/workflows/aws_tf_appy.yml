@@ -1,5 +1,5 @@
 ### Reusable workflow to download terraform artifact built by `az_tf_plan` and apply the artifact/plan ###
-name: "Apply_TF_Plan"
+name: "Apply_TF"
 on:
   workflow_call:
     inputs:
@@ -27,7 +27,7 @@ on:
         required: true
 
 jobs:
-  apply-plan:
+  apply:
     runs-on: ubuntu-latest
     environment: ${{ inputs.gh_environment }}
     defaults:
