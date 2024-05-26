@@ -5,7 +5,7 @@ on:
 jobs:
   Plan_Dev:
     if: github.ref == 'refs/heads/develop'
-    uses: RekhuGopal/gitreusableflows/.github/workflows/aws_tf_plan.yml@develop
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@develop
     with:
       path: IAMRoles
       tf_vars_file: dev.tfvars
@@ -13,32 +13,9 @@ jobs:
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-  Manual_Approval_Dev:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    needs: Plan_Dev
-    steps:
-      - name: Manual Approval - Dev
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const { data: checks } = await github.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: github.sha
-            });
-            const check = checks.check_runs.find(check => check.name === 'Plan Dev');
-            if (check.conclusion === 'success') {
-              console.log('Dev plan succeeded. You can proceed with deployment.');
-            } else {
-              console.log('Dev plan failed. Deployment halted.');
-              process.exit(1);
-            }
-
   Deploy_Dev:
-    needs: Manual_Approval_Dev
-    if: needs.Manual_Approval_Dev.result == 'success'
-    uses: RekhuGopal/gitreusableflows/.github/workflows/aws_tf_appy.yml@develop
+    needs: Plan_Dev
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@develop
     with:
       path: IAMRoles
       tf_vars_file: dev.tfvars
@@ -48,7 +25,7 @@ jobs:
 
   Plan_Uat:
     if: github.ref == 'refs/heads/main'
-    uses: RekhuGopal/gitreusableflows/.github/workflows/aws_tf_appy.yml@main
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_plan.yml@main
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
@@ -56,32 +33,9 @@ jobs:
     secrets:
       cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-  Manual_Approval_Uat:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: Plan_Uat
-    steps:
-      - name: Manual Approval - UAT
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const { data: checks } = await github.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: github.sha
-            });
-            const check = checks.check_runs.find(check => check.name === 'Plan UAT');
-            if (check.conclusion === 'success') {
-              console.log('UAT plan succeeded. You can proceed with deployment.');
-            } else {
-              console.log('UAT plan failed. Deployment halted.');
-              process.exit(1);
-            }
-
   Deploy_Uat:
-    if: github.ref == 'refs/heads/main'
-    needs: Manual_Approval_Uat
-    uses: RekhuGopal/gitreusableflows/.github/workflows/aws_tf_appy.yml@develop
+    needs: Plan_Uat
+    uses: hari36135/regov-gitreusableflows/.github/workflows/aws_tf_appy.yml@main
     with:
       path: IAMRoles
       tf_vars_file: uat.tfvars
